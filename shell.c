@@ -22,14 +22,14 @@ int main(){
 	char currpath[2000];
 	char *printpath=(char*)malloc(1500*sizeof(char));
 	if(getcwd(inpath,1500)!=NULL){
-		printf("the current dir is%s\n",inpath );
+		// printf("the current dir is%s\n",inpath );
 	}
-	printf("MTL4xx~$ ");
+	printf("MTL4xx~ $ ");
 	strcpy(currpath,inpath);
 	int exit=1;
 	do{
 		char* ins =read_from_line(currpath);
-		executing_code(ins,currpath);
+		executing_code(ins,currpath,inpath);
 		int k=finder(inpath,currpath,printpath);
 		if(k==0){
 			printpath="";
@@ -41,10 +41,11 @@ int main(){
 			printpath=currpath+k;	
 		}
 		// printf("%d\n",k );
-		printf("inside the do while loop\n");
-		printf("%s\n",currpath );
-		printf("MTL4xx~$ ");
-		printf("%s\n",printpath );	
+		// printf("inside the do while loop\n");
+		// printf("%s\n",currpath );
+		printf("MTL4xx~");
+		printf("%s",printpath );
+		printf(" $" );	
 	}while(exit);
 	
 	return 0;
@@ -78,15 +79,15 @@ void remove_all_chars(char* str, char c){
 }
 
 
-char* change_dir(char* buffer, char* path, char* newPath){
+char* change_dir(char* buffer, char* path, char* newPath, char* inpath){
 
-	printf("here\n");
+	// printf("here\n");
 	char* pathBuffer = (char*)malloc(1000);
 	// printf("%s\n",path );
 	strcpy(pathBuffer,path);
-	printf("this is pathbuffer %s\n",pathBuffer );
-	printf("this is new path %s\n", newPath);
-	printf("this is currpath %s\n",path);
+	// printf("this is pathbuffer %s\n",pathBuffer );
+	// printf("this is new path %s\n", newPath);
+	// printf("this is currpath %s\n",path);
 
 	char* p=strtok(buffer," ");
 
@@ -97,7 +98,7 @@ char* change_dir(char* buffer, char* path, char* newPath){
 	}
 
 	p[strcspn(p,"\n")]=0;
-	printf("%s\n", p);
+	// printf("%s\n", p);
 
 	// printf("heck\n");
 
@@ -126,11 +127,11 @@ char* change_dir(char* buffer, char* path, char* newPath){
 	else if(strcmp(".",p)==0){
 		// printf("brrr\n");
 		// printf("%s\n",path );
-		p=strtok(path,"/");
+		// p=strtok(path,"/");
 		// printf("%s\n",p );
-		strcpy(newPath,"/");
+		strcpy(newPath,inpath);
 		// printf("newPath\n");
-		strcat(newPath,p);
+		// strcat(newPath,p);
 		// printf("%s\n", newPath);
 	}
 
@@ -164,6 +165,7 @@ char* change_dir(char* buffer, char* path, char* newPath){
 	char *pixy= strchr(newPath,'/');
 	
 	remove_all_chars(pixy,'\"');
+	remove_all_chars(pixy,'\'');
 	DIR* dir=opendir(pixy);
 	if(dir){
 		closedir(dir);
@@ -180,6 +182,7 @@ char* change_dir(char* buffer, char* path, char* newPath){
 	
 	strcpy(newPath,npath);
 	remove_all_chars(newPath,'\"');
+	remove_all_chars(pixy,'\'');
 	// printf("%s\n",newPath);
 	// printf("%s\n",getcwd(s,200) );
 	return newPath;
@@ -239,11 +242,11 @@ int finder(char* inpath, char* currpath, char* printpath){
 
 }
 
-void executing_code(char *buffer,char *path){
+void executing_code(char *buffer,char *path,char* inpath){
 
-	printf("%s\n", path);
+	// printf("%s\n", path);
 
-	printf("you typed : %s",buffer );
+	// printf("you typed : %s",buffer );
 	// printf("bleh\n");
 
 	//tempbuffer stores the buffer as strtok modifies it
@@ -257,8 +260,14 @@ void executing_code(char *buffer,char *path){
 
 	//finds the command identifier
 	char *p=strtok(buffer," ");
+	// printf("%s",p );
+	if(strcmp(p,"\n")==0){
+		// printf("empty string\n");
+		return;
+	}
+
 	p[strcspn(p,"\n")]=0;
-	printf("%s\n", p);
+	// printf("%s\n", p);
 
 	// printf("bleh\n");
 
@@ -287,25 +296,25 @@ void executing_code(char *buffer,char *path){
 		//we store the newpath in newPath
 		// char* newPath=(char*)malloc(120*sizeof(char));
 		char newPath[1500];
-		printf("this is new path xx  %s\n",newPath);
-		change_dir(tempBuffer,path, newPath);
-		printf("%s\n",newPath );
+		// printf("this is new path xx  %s\n",newPath);
+		change_dir(tempBuffer,path, newPath,inpath);
+		// printf("%s\n",newPath );
 		memset(path,0,sizeof(path));
 		strcpy(path,newPath);
 		memset(newPath,0,sizeof(newPath));
-		printf("%s\n",path );
+		// printf("%s\n",path );
 		char s[1500];
 		chdir(path);
-		printf("%s\n",getcwd(s,200) );
+		// printf("%s\n",getcwd(s,200) );
 		return;
 	}
 
 
 	char **args=malloc(1500 * sizeof(char *));
 	int pos=0;
-	printf("routine started\n");
+	// printf("routine started\n");
 	while(p!=NULL){
-		printf("%s\n",p );
+		// printf("%s\n",p );
 		p[strcspn(p,"\n")]=0;
 		args[pos]=p;
 		pos++;
@@ -317,26 +326,22 @@ void executing_code(char *buffer,char *path){
 
 }
 
-//modify this function !!!!!!!
+
 
 int process_launch(char **args){
-	pid_t p1,wpid;
-
-	p1=fork();
-	int status;
-
-	if(p1<0){
-		printf("fork failed\n");
+	
+	pid_t rc=fork();
+	
+	if(rc<0){
+		printf("fork failed, try again\n");
 	}
-	else if(p1==0){
-		printf("child process launched\n");
+	else if(rc==0){
+		// printf("child process launched\n");
 		execvp(args[0],args);
-		printf("this shouldn't print\n");
+		printf("cannot execute the command\n");
 	}
 	else{
-		do {
-      	wpid = waitpid(p1, &status, WUNTRACED);
-    	}while(!WIFEXITED(status) && !WIFSIGNALED(status));
+		int rc_wait=wait(&rc);
 	}
 	return 1;
 }
