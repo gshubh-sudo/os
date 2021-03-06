@@ -94,6 +94,7 @@ char* change_dir(char* buffer, char* path, char* newPath, char* inpath){
 	p=strtok(NULL,"\n");
 	if(p==NULL){
 		printf("enter more arguments\n");
+		strcpy(newPath,path);
 		return path;
 	}
 
@@ -124,7 +125,7 @@ char* change_dir(char* buffer, char* path, char* newPath, char* inpath){
 		// printf("%s\n",newPath );
 	}
 
-	else if(strcmp(".",p)==0){
+	else if(strcmp("~",p)==0){
 		// printf("brrr\n");
 		// printf("%s\n",path );
 		// p=strtok(path,"/");
@@ -250,7 +251,8 @@ void executing_code(char *buffer,char *path,char* inpath){
 	// printf("bleh\n");
 
 	//tempbuffer stores the buffer as strtok modifies it
-	char* tempBuffer = (char*)malloc(1500);
+	// char tempBuffer = (char*)malloc(1500);
+	char tempBuffer[1500];
 	// printf("%d\n", (int)sizeof(buffer));
 	strcpy(tempBuffer,buffer);
 
@@ -310,19 +312,69 @@ void executing_code(char *buffer,char *path,char* inpath){
 	}
 
 
+	tempBuffer[strcspn(tempBuffer,"\n")]=0;
+	strcat(tempBuffer," ");
+	// printf("%s\n",tempBuffer );
+
 	char **args=malloc(1500 * sizeof(char *));
 	int pos=0;
-	// printf("routine started\n");
-	while(p!=NULL){
-		// printf("%s\n",p );
-		p[strcspn(p,"\n")]=0;
-		args[pos]=p;
-		pos++;
-		p=strtok(NULL," ");
+	char *q=(char*)malloc(150*sizeof(char));
+
+	int n=strlen(tempBuffer);
+	// printf("%d\n", n);
+	int i=0;
+	int quotFlag=0;
+
+	while(i<n){
+		if(tempBuffer[i]=='\"'){
+				quotFlag=1-quotFlag;
+		}
+
+		else if(tempBuffer[i]==' ' && quotFlag==0){
+			// printf("%s\n",q );
+			// char *qn=(char*)malloc(150*sizeof(char));
+			args[pos]=(char*)malloc(150*sizeof(char));
+			strcpy(args[pos],q);
+			// printf("%s\n",args[pos] );
+
+			pos++;
+			// printf("%s\n",args[pos-1] );
+			// printf("%s\n",q );
+			// memset(q,0,150*sizeof(char));
+			free(q);
+			q=(char*)malloc(150*sizeof(char));
+			// printf("%s\n",args[pos-1] );
+
+		}
+
+		else{
+			// printf("%c\n",tempBuffer[i] );
+			char p[2];
+			p[0]=tempBuffer[i];
+			p[1]='\0';
+			// printf("%s\n",p );
+			strcat(q,p);
+			// printf("%s\n",q );
+		}
+		i++;
+		
 	}
+	free(q);
+	// printf("routine started\n");
+	// while(p!=NULL){
+	// 	// printf("%s\n",p );
+	// 	p[strcspn(p,"\n")]=0;
+	// 	args[pos]=p;
+	// 	pos++;
+	// 	p=strtok(NULL," ");
+	// }
 	args[pos]=NULL;
 	process_launch(args);
 	// printf("\n");
+	// free(tempBuffer);
+	memset(tempBuffer,0,sizeof(tempBuffer));
+	free(args);
+	free(pathBuffer);
 
 }
 
@@ -345,5 +397,4 @@ int process_launch(char **args){
 	}
 	return 1;
 }
-
 
