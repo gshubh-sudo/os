@@ -333,6 +333,10 @@ void executing_code(char *buffer,char *path,char* inpath){
 		else if(tempBuffer[i]==' ' && quotFlag==0){
 			// printf("%s\n",q );
 			// char *qn=(char*)malloc(150*sizeof(char));
+			if(strcmp(q,"")==0){
+				i++;
+				continue;
+			}
 			args[pos]=(char*)malloc(150*sizeof(char));
 			strcpy(args[pos],q);
 			// printf("%s\n",args[pos] );
