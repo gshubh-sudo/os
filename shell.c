@@ -55,9 +55,11 @@ int main(){
 		memset(hist[0],0,1500*sizeof(char));
 
 		strcpy(hist[0],ins);
-
+		if(his<10){
+			his++;
+		}
 		if(strcmp(hist[0],"history\n")==0){
-			for(int i=0;i<his;i++){
+			for(int i=his-1;i>=0;i--){
 				printf("%s",hist[i] );
 			}
 			printf("MTL4xx~");
@@ -65,9 +67,7 @@ int main(){
 			printf(" $" );
 			continue;
 		}
-		if(his<10){
-			his++;
-		}
+		
 
 		executing_code(ins,currpath,inpath);
 		int k=finder(inpath,currpath,printpath);
@@ -127,6 +127,7 @@ char* change_dir(char* buffer, char* path, char* newPath, char* inpath){
 	// printf("here\n");
 
 	char* pathBuffer = (char*)malloc(1000);
+	memset(pathBuffer,0,1000*sizeof(char));
 	memset(newPath,0,1500*sizeof(char));
 	strcpy(pathBuffer,path);
 
@@ -259,7 +260,7 @@ void executing_code(char *buffer,char *path,char* inpath){
 
 	char **args=malloc(1500 * sizeof(char *));
 	int pos=0;
-	char *q=(char*)malloc(150*sizeof(char));
+	char *q=(char*)calloc(150,sizeof(char));
 
 	int n=strlen(tempBuffer);
 	int i=0;
@@ -274,11 +275,11 @@ void executing_code(char *buffer,char *path,char* inpath){
 				i++;
 				continue;
 			}
-			args[pos]=(char*)malloc(150*sizeof(char));
+			args[pos]=(char*)calloc(150,sizeof(char));
 			strcpy(args[pos],q);
 			pos++;
 			free(q);
-			q=(char*)malloc(150*sizeof(char));
+			q=(char*)calloc(150,sizeof(char));
 		}
 		else{
 			char p[2];
