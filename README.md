@@ -1,4 +1,4 @@
-# A fully functioning basic C-shell
+# A simple fully functioning basic C-shell in linux
 ##### The shell can execute pretty much all the commands that a normal shell can execute as long as the command entered is an executible such as cat, xc
 ##### The default directory is the directory where this shell program is executed
 
